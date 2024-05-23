@@ -17,7 +17,7 @@ app.get("/servicos", (req, res) => {
   res.status(200).send("Rota para trazer os serviços")
 });
 
-let html = '';
+let html = '/';
 
 app.get("/marcas", (req, res) => {
     var html = `<html>
@@ -30,8 +30,20 @@ app.get("/marcas", (req, res) => {
     </html>`
 
     res.status(200).send(html);
+    //Fazer uma SQL no banco de dados
+    //Trazendo as marcas cadastradas e com o fl_marca TRUE
+    //lista = html
   });
   
+//Rota para inclusão de novos serviços
+app.post("/servicos",(req, res)=>{
+   let tit = 'conserto'//req.titulo;
+   let desc = 'breve descrição do serviço'//req.descricao;
+   let url = './servicos/servicos.html'//req.url;
+
+   res.send(tit + desc + url);
+})
+
 
 //Servidor criado com JS puro
 
