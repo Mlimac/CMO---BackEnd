@@ -1,0 +1,32 @@
+{
+  "name": "cmo-back",
+  "version": "1.0.0",
+  "description": "Aplicação Back-End do projeto CMO",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mlimac/CMO.git"
+  },
+  "keywords": [
+    "micro-ondas",
+    "conserto",
+    "oficina",
+    "ordem",
+    "serviço"
+  ],
+  "author": "Murilo Bruno Felipe Christian Ederson",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Mlimac/CMO/issues"
+  },
+  "homepage": "https://github.com/Mlimac/CMO#readme",
+  "dependencies": {
+    "express": "^4.19.2",
+    "nodemon": "^3.1.0"
+  }
+}
