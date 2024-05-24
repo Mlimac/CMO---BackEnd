@@ -1,5 +1,6 @@
 import express from "express";
 import bodyParser from "body-parser";
+import mysql from 'mysql2'
 
 const app = express();
 const porta = 3000;
