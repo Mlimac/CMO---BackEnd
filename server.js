@@ -1,8 +1,12 @@
 import express from "express";
+import bodyParser from "body-parser";
 
 const app = express();
-
 const porta = 3000;
+
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended:true}))
 
 app.listen(porta, () => {
     console.log("servidor rodando e escutando na porta 3000")
@@ -37,11 +41,14 @@ app.get("/marcas", (req, res) => {
   
 //Rota para inclusão de novos serviços
 app.post("/servicos",(req, res)=>{
-   let tit = 'conserto'//req.titulo;
-   let desc = 'breve descrição do serviço'//req.descricao;
-   let url = './servicos/servicos.html'//req.url;
+   let tit = req.body.titulo;
+   let desc = req.body.desc;
+   let url = req.body.url;
+   
 
-   res.send(tit + desc + url);
+   //INSERT INTO servico (titulo, ds_servico, url_servico)
+   //Values (:tit, :desc, :desc)
+   res.send('Serviço adicionado com sucesso');
 })
 
 
