@@ -4,6 +4,14 @@ import mysql from 'mysql2'
 
 const app = express();
 const porta = 3000;
+const conexao = mysql.createConnection({
+  host: "localhost:3306;/CMO",
+  user: "root",
+  password: "admin"
+})
+
+
+conexao.connect();
 
 
 app.use(bodyParser.json());
@@ -46,11 +54,18 @@ app.post("/servicos",(req, res)=>{
    let desc = req.body.desc;
    let url = req.body.url;
    
+   conexao.query(
+   `INSERT INTO servico (titulo, ds_servico, url_servico) 
+   Values (:tit, :desc, :url)`, (erro, linhas, campos) => {
+    campos = {tit, desc, url};
+    if(erro) 
+      res.send('Problema ao inserir');
+    else
+    res.send(linhas)
+    
 
-   //INSERT INTO servico (titulo, ds_servico, url_servico)
-   //Values (:tit, :desc, :desc)
-   res.send('Serviço adicionado com sucesso');
-})
+   });
+});
 
 
 //Servidor criado com JS puro
