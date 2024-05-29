@@ -5,7 +5,7 @@ import mysql from 'mysql2'
 const app = express();
 const porta = 3000;
 const conexao = mysql.createConnection({
-  host: "localhost:3306;/CMO",
+  host: "localhost: 3306;/cmo",
   user: "root",
   password: "admin"
 })
@@ -52,16 +52,20 @@ app.get("/marcas", (req, res) => {
 app.post("/servicos",(req, res)=>{
    let tit = req.body.titulo;
    let desc = req.body.desc;
+   let img = req.body.img;
+   let ativo = true;
    let url = req.body.url;
+   let ordem = req.body.ordem;
    
    conexao.query(
-   `INSERT INTO servico (titulo, ds_servico, url_servico) 
-   Values (:tit, :desc, :url)`, (erro, linhas, campos) => {
+   `CALL sp_ins_servico(?, ?, ?, ?, ?, ?, @id, @msg)`,[tit, desc,img,ativo, url,ordem], (erro, linhas) => {
     campos = {tit, desc, url};
-    if(erro) 
-      res.send('Problema ao inserir');
-    else
-    res.send(linhas)
+    if(erro) {
+      console.log(erro);
+      res.send('Problema ao inserir');}
+    else  {
+       console.log(linhas);
+       res.send('Servido Inserido com Sucesso')}
     
 
    });
