@@ -1,13 +1,16 @@
 import express from "express";
 import bodyParser from "body-parser";
 import mysql from 'mysql2'
+import jwt from "jsonwebtoken";
 
 const app = express();
 const porta = 3000;
 const conexao = mysql.createConnection({
-  host: "localhost:3306;/CMO",
+  host: "localhost",
   user: "root",
-  password: "admin"
+  port: 3306,
+  database: "CMO",
+  password: "123456"
 })
 
 
@@ -32,6 +35,29 @@ app.get("/servicos", (req, res) => {
 
 let html = '/';
 
+/*app.post("/login", (req, res) => {
+
+let usu = req.body.usuario;
+let sen = req.body.senha;
+
+//conectar ao bd pra buscar o id desse usuario
+if((usu = "marcos") AND (sen = "123")){
+  const id = 1; //isso vem do BD
+
+  //token tem 3 partes = 1) identifica o usuario 2 )segredo 3) opçoes
+  const token = jwt.sign({id}, SEGREDO, { expiresIn: 300 }) //5 min
+  
+  console.log("usuario marcos logou no sistema");
+  res.status.(500).json({autenticado : true, token: token});
+
+}
+else{
+  res.status(501).send("usuario invalido ou inexistente");
+}
+
+});*/
+
+
 app.get("/marcas", (req, res) => {
     var html = `<html>
     <head>
@@ -48,20 +74,39 @@ app.get("/marcas", (req, res) => {
     //lista = html
   });
   
+app.get("/servicos",(req, res)=>{
+
+
+
+
+});
+
 //Rota para inclusão de novos serviços
 app.post("/servicos",(req, res)=>{
    let tit = req.body.titulo;
    let desc = req.body.desc;
    let url = req.body.url;
+   let img = req.body.img;
+   let oper = req.body.oper;
+   let ordem = req.body.ordem;
+   let ativo = true;
    
+   console.log("titulo: " + tit);
+
    conexao.query(
-   `INSERT INTO servico (titulo, ds_servico, url_servico) 
-   Values (:tit, :desc, :url)`, (erro, linhas, campos) => {
-    campos = {tit, desc, url};
-    if(erro) 
+   `call SP_Ins_servico(?, ?, ?, ?, ?, ?, @id, @msg);`, [tit, desc, img, ativo, url, ordem], (erro, linhas,) => {
+    var campos = {tit, desc, url};
+    if(erro) {
+
+      console.log(erro);
       res.send('Problema ao inserir');
-    else
-    res.send(linhas)
+    }
+      
+    else{
+      console.log(linhas);
+      res.send("Serviço inserido!");
+    }
+    
     
 
    });
