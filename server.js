@@ -3,6 +3,8 @@ import bodyParser from "body-parser";
 import mysql from 'mysql2'
 import jwt from "jsonwebtoken";
 
+const SEGREDO = 'REMOTA';
+
 const app = express();
 const porta = 3000;
 const conexao = mysql.createConnection({
@@ -33,7 +35,24 @@ app.get("/servicos", (req, res) => {
   res.status(200).send("Rota para trazer os serviços")
 });
 
+/*
+app.get("/servicos", verificarToken, (req, res) => {
+  res.status(200).send("Rota para trazer os servicos");
+});
+*/
+
 let html = '/';
+
+// middleware
+/*function verificarToken(req, res, next){
+  const token = req.headers['x-access-token'];
+  jwt.verify(token, SEGREDO, (erro, decodificado) => {
+    if(erro)
+      return res.status(401).end();
+    req.id = decodificado.id;
+    next();
+  });
+}*/
 
 /*app.post("/login", (req, res) => {
 
