@@ -15,41 +15,26 @@ const conexao = mysql.createConnection({
   port: 3306,
   database: "CMO",
   password: "123456"
-})
-
-
-
+});
 
 conexao.connect();
 
-
-
-
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}))
-
 
 app.listen(porta, () => {
     console.log("servidor rodando e escutando na porta " + porta);
 });
 
-
-
-
 app.get("/", (req, resp) => {
    resp.status(200).send("Nosso servidor da CMO")
 });
 
-
 /*app.get("/servicos", verificarToken, (req, res) => {
-  res.status(200).send("Rota para trazer os servicos");
+  res.status(200).send("Rota para trazer os servicos\n");
 });*/
 
-
-
-
 let html = '/';
-
 
 // middleware
 function verificarToken(req, res, next){
@@ -65,28 +50,23 @@ function verificarToken(req, res, next){
 
 app.post("/login", (req, res) => {
 
-
   let usu = req.body.usuario;
   let sen = req.body.senha;
-
 
 //conectar ao bd pra buscar o id desse usuario
   if((usu = "marcos") && (sen = "123")){
     const id = 1; //isso vem do BD
 
-
     //token tem 3 partes = 1) identifica o usuario 2 )segredo 3) opçoes
     const token = jwt.sign({id}, SEGREDO, { expiresIn: 300 }) //5 min
    
     console.log("usuario marcos logou no sistema");
-    res.status(500).json({autenticado : true, token: token});
-
+    res.status(200).json({autenticado : true, token: token});
 
   }
   else{
     res.status(501).send("usuario invalido ou inexistente");
   }
-
 
 });
 
@@ -104,36 +84,34 @@ app.get("/marcas", (req, res) => {
     </html>`
 
 
-    res.status(200).send(html);
-    //Fazer uma SQL no banco de dados
-    //Trazendo as marcas cadastradas e com o fl_marca TRUE
-    //lista = html
+  conexao.query("select * from marca", (err, result) => {
+        if (err) throw err;
+        res.status(200).json(result);
+        return result;
   });
+
+  //res.status(200).send(html);
+  //Fazer uma SQL no banco de dados
+  //Trazendo as marcas cadastradas e com o fl_marca TRUE
+  //lista = html
+
+});
  
  
+app.get("/servicos", verificarToken, (req, res)=>{
 
-
-app.get("/servicos",(req, res)=>{
-
-
-  var resultado;
   conexao.query("select * from servico", (err, result) => {
-    if (err) throw err
-    resultado = result;
-    return result;
-})
-
-
-console.log(resultado);
-
-
-
+      if (err) throw err;
+      console.log(result);
+      res.status(200).json(result);
+      return result;
+  });
 
 });
 
 
 //Rota para inclusão de novos serviços
-app.post("/servicos",(req, res)=>{
+app.post("/servicos", verificarToken, (req, res)=>{
    let tit = req.body.titulo;
    let desc = req.body.desc;
    let url = req.body.url;
@@ -143,7 +121,6 @@ app.post("/servicos",(req, res)=>{
    let ativo = true;
    
    console.log("titulo: " + tit);
-
 
    conexao.query(
    `call SP_Ins_servico(?, ?, ?, ?, ?, ?, @id, @msg);`, [tit, desc, img, ativo, url, ordem], (erro, linhas) => {
@@ -159,15 +136,35 @@ app.post("/servicos",(req, res)=>{
       console.log(linhas);
       res.send("Serviço inserido!");
     }
-   
-   
 
 
    });
 });
 
+app.post("/marcas", verificarToken, (req, res)=>{
+   let desc = req.body.desc;
+   let url = req.body.url;
+   let logo = req.body.logo;
+   let flag = req.body.flag;
+   
+   conexao.query(
+   `call SP_Ins_Marca(?, ?, ?, ?, @msg);`, [desc, url, logo, flag], (erro, linhas) => {
+    //var campos = {tit, desc, url};
+    if(erro) {
 
 
+      console.log(erro);
+      res.send('Problema ao inserir');
+    }
+     
+    else{
+      console.log(linhas);
+      res.send("Serviço inserido!");
+    }
+
+
+   });
+});
 
 //Servidor criado com JS puro
 
@@ -191,13 +188,3 @@ app.post("/servicos",(req, res)=>{
 //server.listen(3000, () => {
 //    console.log("Servidor escutando porta 3000")
 //})
-
-
-
-
-
-
-
-
-
-
