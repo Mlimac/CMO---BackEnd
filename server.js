@@ -2,25 +2,25 @@ import express from "express";
 import bodyParser from "body-parser";
 import mysql from 'mysql2'
 import jwt from "jsonwebtoken";
-
+import cors from 'cors';
 
 const SEGREDO = 'REMOTA';
 
-
 const app = express();
-const porta = 3001;
+const porta = 5000;
 const conexao = mysql.createConnection({
   host: "localhost",
   user: "root",
   port: 3306,
   database: "CMO",
-  password: "123456"
+  password: ""
 });
 
 conexao.connect();
 
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended:true}))
+app.use(bodyParser.urlencoded({extended:true}));
+app.use(cors());
 
 app.listen(porta, () => {
     console.log("servidor rodando e escutando na porta " + porta);
@@ -98,9 +98,9 @@ app.get("/marcas", (req, res) => {
 });
  
  
-app.get("/servicos", verificarToken, (req, res)=>{
+app.get("/servicos", (req, res)=>{
 
-  conexao.query("select * from servico", (err, result) => {
+  conexao.query("select titulo_servico,desc_servico, img_servico, ordem_apresentacao, url_servico from servico where ordem_apresentacao = 1", (err, result) => {
       if (err) throw err;
       console.log(result);
       res.status(200).json(result);
@@ -108,6 +108,20 @@ app.get("/servicos", verificarToken, (req, res)=>{
   });
 
 });
+
+app.get("/filiais",  (req, res)=>{
+
+  conexao.query("select nome, endereco, bairro, cidade, estado, fone, celular, cnpj from filial", (err, result) => {
+      if (err) throw err;
+      console.log(result);
+      res.status(200).json(result);
+      return result;
+  });
+
+});
+
+
+
 
 
 //Rota para inclusão de novos serviços
