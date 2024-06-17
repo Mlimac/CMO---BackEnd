@@ -84,7 +84,7 @@ app.get("/marcas", (req, res) => {
     </html>`
 
 
-  conexao.query("select * from marca", (err, result) => {
+  conexao.query("select nome, endereco, bairro, cidade, estado, fone, celular, cnpj from marca", (err, result) => {
         if (err) throw err;
         res.status(200).json(result);
         return result;
@@ -100,7 +100,7 @@ app.get("/marcas", (req, res) => {
  
 app.get("/servicos", (req, res)=>{
 
-  conexao.query("select titulo_servico,desc_servico, img_servico, ordem_apresentacao, url_servico from servico where ordem_apresentacao = 1", (err, result) => {
+  conexao.query("select titulo_servico, desc_servico, img_servico, ordem_apresentacao, url_servico from servico where ordem_apresentacao = 1", (err, result) => {
       if (err) throw err;
       console.log(result);
       res.status(200).json(result);
@@ -132,7 +132,6 @@ app.post("/servicos", verificarToken, (req, res)=>{
    let img = req.body.img;
    let oper = req.body.oper;
    let ordem = req.body.ordem;
-   let ativo = true;
    
    console.log("titulo: " + tit);
 
@@ -173,7 +172,36 @@ app.post("/marcas", verificarToken, (req, res)=>{
      
     else{
       console.log(linhas);
-      res.send("Serviço inserido!");
+      res.send("Marca inserida!");
+    }
+
+
+   });
+});
+
+app.post("/filiais", (req, res)=>{
+   let nome = req.body.nome;
+   let endereco = req.body.endereco;
+   let bairro = req.body.bairro;
+   let cidade = req.body.cidade;
+   let fone = req.body.fone;
+   let celular = req.body.celular;
+   let estado = req.body.estado;
+   let cnpj = req.body.cnpj;
+
+
+   
+   conexao.query(
+   `call SP_Ins_Filiais(?, ?, ?, ?, ?, ?, ?, ?, @msg);`, [nome, endereco, bairro, cidade, estado, fone, celular, cnpj], (erro, linhas) => {
+    //var campos = {tit, desc, url};
+    if(erro) {
+      console.log(erro);
+      res.send('Problema ao inserir\n');
+    }
+     
+    else{
+      console.log(linhas);
+      res.send("Filial inserida!\n");
     }
 
 
