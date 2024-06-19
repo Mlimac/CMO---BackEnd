@@ -1,14 +1,14 @@
 import express from "express";
 import bodyParser from "body-parser";
-import mysql from 'mysql2'
+import mysql from 'mysql2';
 import jwt from "jsonwebtoken";
 import cors from 'cors';
-
+import sqlServer from "mssql";
 const SEGREDO = 'REMOTA';
 
 const app = express();
 const porta = 5000;
-const conexao = mysql.createConnection({
+/*const conexao = mysql.createConnection({
   host: "localhost",
   user: "root",
   port: 3306,
@@ -16,7 +16,29 @@ const conexao = mysql.createConnection({
   password: ""
 });
 
-conexao.connect();
+conexao.connect();*/
+
+const dbConfig = {
+  server : "52.5.245.24",
+  database : "cmo",
+  user: "adminCMO",
+  password : "@Uniandrade_2024",
+  port : 1433,
+  options :{
+    trustServerCertificate : true
+  }
+
+};
+
+const conexao = sqlServer.connect(dbConfig, (err) => {
+
+  if(err)
+    console.log(err);
+  else
+    console.log("conectado com o sql server");
+
+
+});
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}));
@@ -87,7 +109,6 @@ app.get("/marcas", (req, res) => {
   conexao.query("select nome, endereco, bairro, cidade, estado, fone, celular, cnpj from marca", (err, result) => {
         if (err) throw err;
         res.status(200).json(result);
-        return result;
   });
 
   //res.status(200).send(html);
@@ -104,7 +125,6 @@ app.get("/servicos", (req, res)=>{
       if (err) throw err;
       console.log(result);
       res.status(200).json(result);
-      return result;
   });
 
 });
@@ -135,7 +155,7 @@ app.post("/servicos", verificarToken, (req, res)=>{
    
    console.log("titulo: " + tit);
 
-   conexao.query(
+   /*conexao.query(
    `call SP_Ins_servico(?, ?, ?, ?, ?, ?, @id, @msg);`, [tit, desc, img, ativo, url, ordem], (erro, linhas) => {
     var campos = {tit, desc, url};
     if(erro) {
@@ -151,7 +171,23 @@ app.post("/servicos", verificarToken, (req, res)=>{
     }
 
 
-   });
+   });*/
+
+   conexao.query(`exec SP_Ins_Servico
+   ${tit}, ${desc}, ${url}, 
+   ${img}, ${ordem}, ${ativo}`, (erro, resultado) =>{
+
+        if(erro){
+          console.log(erro);
+          res.status(500).send('Problema ao inserir serviço');
+        }
+        else{
+          console.log(resultado);
+          res.status(200).send("Serviço inserido com sucesso");
+
+        }
+
+   })
 });
 
 app.post("/marcas", verificarToken, (req, res)=>{
