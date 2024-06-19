@@ -118,16 +118,38 @@ app.get("/marcas", (req, res) => {
 
 });
  
- 
+//Get Site
 app.get("/servicos", (req, res)=>{
 
-  conexao.query("select titulo_servico, desc_servico, img_servico, ordem_apresentacao, url_servico from servico where ordem_apresentacao = 1", (err, result) => {
-      if (err) throw err;
-      console.log(result);
-      res.status(200).json(result);
-  });
+  conexao.query("select titulo_servico, desc_servico, img_servico, ordem_apresentacao, url_servico from servico where ativo = 1 ORDER BY ORDEM_APRESENTACAO")
+  .then(result => res.json(result.recordset))
+  .catch(err => res.json(err));
 
 });
+
+//Get ADM
+app.get("/admServicos", (req, res)=>{
+
+  conexao.query("select titulo_servico, desc_servico, img_servico, ordem_apresentacao, url_servico from servico ORDER BY ORDEM_APRESENTACAO")
+  .then(result => res.json(result.recordset))
+  .catch(err => res.json(err));
+
+});
+
+app.get('/servicos:id', (req, res) =>{
+  let id_servico = req.params.id;
+  conexao.query(`Select id_servico,
+                        titulo_servico,
+                        desc_servico,
+                        img_servico,
+                        url_servico,
+                        ordem_apresentacao,
+                        ativo
+                        FROM servico WHERE id_servico = 1 ${id_servico}`)
+                        .then(result => res.json(result.recordset))
+                        .catch(err => res.json(err));
+});
+
 
 app.get("/filiais",  (req, res)=>{
 
@@ -139,6 +161,8 @@ app.get("/filiais",  (req, res)=>{
   });
 
 });
+
+
 
 //======================================================= MÉTODO GET FIM =================================================
 
@@ -181,22 +205,6 @@ app.post("/servicos", (req, res)=>{
 
 
    });
-
-   /*conexao.query(`exec SP_Ins_Servico
-   ${tit}, ${desc}, ${url}, 
-   ${img}, ${ordem}, ${ativo}`, (erro, resultado) =>{
-
-        if(erro){
-          console.log(erro);
-          res.status(500).send('Problema ao inserir serviço');
-        }
-        else{
-          console.log(resultado);
-          res.status(200).send("Serviço inserido com sucesso");
-
-        }
-
-   })*/
 });
 
 app.post("/marcas", (req, res)=>{
@@ -271,19 +279,21 @@ app.put("/servicos", (req, res) => {
     let url = req.body.url;
     let oper = req.body.oper;
 
-    conexao.query(
-        `call sp_Up_Servico(?, ?, ?, ?, ?, ?, ?, @msg);`, 
-        [id, tit, desc, img, ativo, url, oper], 
-        (erro, linhas) => {
-            if (erro) {
-                console.log(erro);
-                res.send('Problema ao atualizar\n');
-            } else {
-                console.log(linhas);
-                res.send("Serviço atualizado com sucesso!\n");
-            }
-        }
-    );
+    conexao.query(`exec SP_UPd_Servico
+      ${tit}, ${desc}, ${url}, 
+      ${img}, ${ordem}, ${ativo}`, (erro, resultado) =>{
+   
+           if(erro){
+             console.log(erro);
+             res.status(500).send('Problema ao inserir serviço');
+           }
+           else{
+             console.log(resultado);
+             res.status(200).send("Serviço inserido com sucesso");
+   
+           }
+   
+      })
 });
 
 // Endpoint para atualizar marcas
@@ -336,7 +346,27 @@ app.put("/filiais", (req, res) => {
 //=========================================================== MÉTODO PUT FIM ================================================
 
 
+//=========================================================== MÉTODO  DELETE INICIO ================================================ 
 
+app.delete("/servicos/:id", (req, res) => {
+  let id = req.params.id;
+
+
+  conexao.query(`exec SP_Del_Servico
+    ${id}`, (erro, resultado) =>{
+ 
+         if(erro){
+           console.log(erro);
+           res.status(500).send('Problema ao excluir serviço');
+         }
+         else{
+           console.log(resultado);
+           res.status(200).send("Serviço excluido com sucesso");
+ 
+         }
+ 
+    })
+});
 
 
 //Servidor criado com JS puro
