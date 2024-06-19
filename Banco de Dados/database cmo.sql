@@ -1,6 +1,6 @@
-create database cmo;
-use cmo;
+CREATE DATABASE IF NOT EXISTS CMO;
 
+use CMO;
 create table Status_ (
 
 id_status int not null auto_increment primary key, 
@@ -8,9 +8,13 @@ desc_status VARCHAR(1000) not null
 );
 
 create table servico (
-id_servico int not null auto_increment primary key, 
-desc_servico varchar(1000) not null,
- valor FLOAT not null);
+id_servico integer not null primary key auto_increment,
+titulo_servico varchar(100),
+desc_servico varchar(500),
+img_servico varchar(100),
+ordem_apresentacao integer, -- se ordem_apresentacao = 0 o serviço não será apresentado
+url_servico varchar(100),
+ativo boolean);
 
 create table plano_pgto (
 id_plano_pgto int not null auto_increment primary key,
@@ -66,7 +70,7 @@ insc_mun char(15) not null,
 id_status int not null, 
 id_filial int not null, 
 dt_atualizacao date not null, 
-foreign key (id_status) references status_(id_status), 
+foreign key (id_status) references Status_(id_status), 
 foreign key (id_filial) references filial(id_filial));
 
 create table email(
@@ -101,13 +105,14 @@ funcao varchar(50) not null,
 id_status int not null, 
 senha varchar(20) not null, 
 id_filial int not null, 
-foreign key (id_status) references status_(id_status), 
+foreign key (id_status) references Status_(id_status), 
 foreign key (id_filial) references filial(id_filial));
 
 create table marca(
 id_marca int not null auto_increment primary key, 
 desc_marca varchar(100) not null, 
-principal varchar(100) not null);
+logo_marca varchar(100),
+url_marca varchar(100));
 
 create table endereco(
 id_cliente int not null, 
@@ -202,7 +207,7 @@ foreign key (id_tipo_prod) references tipo_produto(id_tipo_produto),
 foreign key (id_atendente) references funcionario(id_funcionario),
 foreign key (id_marca) references marca(id_marca),
 foreign key (id_modelo) references modelo(id_modelo),
-foreign key (id_status) references status_(id_status),
+foreign key (id_status) references Status_(id_status),
 foreign key (id_tecnico) references funcionario(id_funcionario),
 foreign key (id_filial) references filial(id_filial),
 foreign key (id_forma_pgto) references forma_pgto(id_forma_pgto),
