@@ -92,7 +92,7 @@ app.post("/login", (req, res) => {
 
 });
 
-
+//======================================================== MÉTODO GET ====================================================
 
 
 app.get("/marcas", (req, res) => {
@@ -140,12 +140,21 @@ app.get("/filiais",  (req, res)=>{
 
 });
 
+//======================================================= MÉTODO GET FIM =================================================
 
 
+
+
+
+
+
+
+
+//======================================================== MÉTODO POST ====================================================
 
 
 //Rota para inclusão de novos serviços
-app.post("/servicos", verificarToken, (req, res)=>{
+app.post("/servicos", (req, res)=>{
    let tit = req.body.titulo;
    let desc = req.body.desc;
    let url = req.body.url;
@@ -155,7 +164,7 @@ app.post("/servicos", verificarToken, (req, res)=>{
    
    console.log("titulo: " + tit);
 
-   /*conexao.query(
+   conexao.query(
    `call SP_Ins_servico(?, ?, ?, ?, ?, ?, @id, @msg);`, [tit, desc, img, ativo, url, ordem], (erro, linhas) => {
     var campos = {tit, desc, url};
     if(erro) {
@@ -171,9 +180,9 @@ app.post("/servicos", verificarToken, (req, res)=>{
     }
 
 
-   });*/
+   });
 
-   conexao.query(`exec SP_Ins_Servico
+   /*conexao.query(`exec SP_Ins_Servico
    ${tit}, ${desc}, ${url}, 
    ${img}, ${ordem}, ${ativo}`, (erro, resultado) =>{
 
@@ -187,10 +196,10 @@ app.post("/servicos", verificarToken, (req, res)=>{
 
         }
 
-   })
+   })*/
 });
 
-app.post("/marcas", verificarToken, (req, res)=>{
+app.post("/marcas", (req, res)=>{
    let desc = req.body.desc;
    let url = req.body.url;
    let logo = req.body.logo;
@@ -243,6 +252,92 @@ app.post("/filiais", (req, res)=>{
 
    });
 });
+
+//======================================================== MÉTODO POST FIM ==================================================
+
+
+
+
+
+
+//=========================================================== MÉTODO PUT ====================================================
+// Endpoint para atualizar serviços
+app.put("/servicos", (req, res) => {
+    let id = req.body.id;
+    let tit = req.body.titulo;
+    let desc = req.body.desc;
+    let img = req.body.img;
+    let ativo = req.body.ativo;
+    let url = req.body.url;
+    let oper = req.body.oper;
+
+    conexao.query(
+        `call sp_Up_Servico(?, ?, ?, ?, ?, ?, ?, @msg);`, 
+        [id, tit, desc, img, ativo, url, oper], 
+        (erro, linhas) => {
+            if (erro) {
+                console.log(erro);
+                res.send('Problema ao atualizar\n');
+            } else {
+                console.log(linhas);
+                res.send("Serviço atualizado com sucesso!\n");
+            }
+        }
+    );
+});
+
+// Endpoint para atualizar marcas
+app.put("/marcas", (req, res) => {
+    let desc_marca = req.body.desc_marca;
+    let principal = req.body.principal;
+
+    conexao.query(
+        `call SP_Up_Marcas(?, ?, @msg);`, 
+        [desc_marca, principal], 
+        (erro, linhas) => {
+            if (erro) {
+                console.log(erro);
+                res.send('Problema ao atualizar\n');
+            } else {
+                console.log(linhas);
+                res.send("Marca atualizada com sucesso!\n");
+            }
+        }
+    );
+});
+
+// Endpoint para atualizar filiais
+app.put("/filiais", (req, res) => {
+    let nome = req.body.nome;
+    let endereco = req.body.endereco;
+    let bairro = req.body.bairro;
+    let cidade = req.body.cidade;
+    let estado = req.body.estado;
+    let fone = req.body.fone;
+    let celular = req.body.celular;
+    let cnpj = req.body.cnpj;
+
+    conexao.query(
+        `call SP_Up_Filiais(?, ?, ?, ?, ?, ?, ?, ?, @msg);`, 
+        [nome, endereco, bairro, cidade, estado, fone, celular, cnpj], 
+        (erro, linhas) => {
+            if (erro) {
+                console.log(erro);
+                res.send('Problema ao atualizar\n');
+            } else {
+                console.log(linhas);
+                res.send("Filial atualizada com sucesso!\n");
+            }
+        }
+    );
+});
+
+
+//=========================================================== MÉTODO PUT FIM ================================================
+
+
+
+
 
 //Servidor criado com JS puro
 
