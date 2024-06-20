@@ -1,8 +1,8 @@
 CREATE DATABASE IF NOT EXISTS CMO;
 
 use CMO;
-create table Status_ (
 
+create table Status_ (
 id_status int not null auto_increment primary key, 
 desc_status VARCHAR(1000) not null
 );
@@ -21,7 +21,6 @@ id_plano_pgto int not null auto_increment primary key,
 desc_plano_pgto varchar(100) not null,
 parcelas int not null,
 juros float not null
-
 );
 
 create table os_servico (
@@ -29,8 +28,8 @@ id_registro int not null auto_increment primary key,
 id_os int not null, 
 descricao varchar(1000) not null, 
 valor_unit int not null, 
-qtde int not null, 
-foreign key(id_os) references servico(id_servico));
+qtde int not null
+);
 
 create table forma_pgto (
 id_forma_pgto int not null auto_increment primary key, 
@@ -38,7 +37,7 @@ desc_forma_pgto varchar(100) not null);
 
 create table tipo_atendimento (
 id_tipo_atendimento int not null auto_increment primary key,
- desc_tipo_atendimento varchar(100) not null);
+desc_tipo_atendimento varchar(100) not null);
 
 create table busca (
 id_busca int not null primary key, 
@@ -69,31 +68,24 @@ cnpj char(15) not null,
 insc_mun char(15) not null, 
 id_status int not null, 
 id_filial int not null, 
-dt_atualizacao date not null, 
-foreign key (id_status) references Status_(id_status), 
-foreign key (id_filial) references filial(id_filial));
+dt_atualizacao date not null
+);
 
 create table email(
 id_email int not null auto_increment primary key, 
 id_cliente int not null, 
 tipo_email varchar(50) not null, 
-email varchar(100) not null, 
-foreign key (id_cliente) references cliente(id_cliente));
+email varchar(100) not null);
 
 create table tipo_produto(
 id_tipo_produto int not null auto_increment primary key, 
 desc_tipo_produto varchar(100) not null, 
 principal varchar(100) not null);
 
-
 create table entrega ( 
 id_entrega int not null auto_increment primary key, 
 endereco_de_entrega varchar(100) not null, 
 dt_entrega date not null);
-
-
-
-
 
 create table funcionario(
 id_funcionario int not null auto_increment primary key, 
@@ -104,9 +96,7 @@ dept varchar(50) not null,
 funcao varchar(50) not null, 
 id_status int not null, 
 senha varchar(20) not null, 
-id_filial int not null, 
-foreign key (id_status) references Status_(id_status), 
-foreign key (id_filial) references filial(id_filial));
+id_filial int not null);
 
 create table marca(
 id_marca int not null auto_increment primary key, 
@@ -124,16 +114,14 @@ bairro varchar(20) not null,
 cidade varchar(50) not null, 
 estado varchar(50) not null, 
 cep char(10) not null, 
-observacao varchar(100) not null,
-foreign key (id_cliente) references cliente(id_cliente));
+observacao varchar(100) not null);
 
 create table fone(
 id_cliente int not null, 
 id_fone int not null auto_increment primary key, 
 tipo_fone varchar(50) not null, 
 nmro int not null, 
-contato varchar(50) not null, 
-foreign key (id_cliente) references cliente(id_cliente));
+contato varchar(50) not null);
 
 create table categoria(
 id_categoria int not null auto_increment primary key, 
@@ -151,17 +139,13 @@ fl_balcao int not null,
 fl_ativo int not null, 
 codigo int not null, 
 unidade varchar(50) not null, 
-id_filial int not null, 
-foreign key(id_filial) references filial(id_filial));
+id_filial int not null);
 
 create table modelo(
 id_modelo int not null primary key, 
 id_marca int not null, 
 desc_modelo varchar(100) not null, 
-id_tipo_produto int not null, 
-foreign key(id_marca) references marca(id_marca), 
-foreign key(id_tipo_produto) references tipo_produto(id_tipo_produto));
-
+id_tipo_produto int not null);
 
 create table OS (
 id_os int not null auto_increment primary key, 
@@ -171,7 +155,7 @@ id_endereco_busca int not null,
 id_endereco_entrega int not null, 
 data_abertura date not null, 
 id_atendente int not null,
- id_tipo_prod int not null, 
+id_tipo_prod int not null, 
 id_marca int not null, 
 id_modelo int not null, 
 acessorios varchar(1000) not null, 
@@ -187,32 +171,50 @@ valor float not null,
 valor_peca float not null, 
 valor_desc float not null, 
 valor_total float not null,
- id_filial int not null, 
+id_filial int not null, 
 observacoes varchar(100) not null, 
 dt_oficina date not null,
- id_forma_pgto int not null, 
- id_plano_pgto int not null,
+id_forma_pgto int not null, 
+id_plano_pgto int not null,
 obs_fechamento varchar(100), 
 id_fechador int not null, 
 contato int not null,
- dt_garantia date not null,
- dt_exclusao date not null,
- id_exclusao int not null, 
-numero_os int not null, 
-foreign key (id_cliente) references cliente(id_cliente), 
-foreign key(id_tipo_atend) references tipo_atendimento(id_tipo_atendimento), 
-foreign key (id_endereco_busca) references busca(id_busca), 
-foreign key (id_endereco_entrega) references entrega(id_entrega),
-foreign key (id_tipo_prod) references tipo_produto(id_tipo_produto),
-foreign key (id_atendente) references funcionario(id_funcionario),
-foreign key (id_marca) references marca(id_marca),
-foreign key (id_modelo) references modelo(id_modelo),
-foreign key (id_status) references Status_(id_status),
-foreign key (id_tecnico) references funcionario(id_funcionario),
-foreign key (id_filial) references filial(id_filial),
-foreign key (id_forma_pgto) references forma_pgto(id_forma_pgto),
-foreign key (id_plano_pgto) references plano_pgto(id_plano_pgto)
+dt_garantia date not null,
+dt_exclusao date not null,
+id_exclusao int not null, 
+numero_os int not null);
+
+create table chamado (
+    id_cliente int primary key, 
+    desc_chamado varchar(1000),
+    tipo_equipamento varchar(50),
+    equipamento varchar(100), 
+    marca varchar(50), 
+    status_chamado char(2), 
+    dt_chamado datetime
 );
 
-
+alter table os_servico add foreign key(id_os) references servico(id_servico);
+alter table cliente add foreign key (id_status) references Status_(id_status);
+alter table cliente add foreign key (id_filial) references filial(id_filial);
+alter table email add foreign key (id_cliente) references cliente(id_cliente);
+alter table endereco add foreign key (id_cliente) references cliente(id_cliente);
+alter table fone add foreign key (id_cliente) references cliente(id_cliente);
+alter table funcionario add foreign key (id_status) references Status_(id_status);
+alter table funcionario add foreign key (id_filial) references filial(id_filial);
+alter table modelo add foreign key(id_marca) references marca(id_marca);
+alter table modelo add foreign key(id_tipo_produto) references tipo_produto(id_tipo_produto);
+alter table OS add foreign key (id_cliente) references cliente(id_cliente);
+alter table OS add foreign key(id_tipo_atend) references tipo_atendimento(id_tipo_atendimento);
+alter table OS add foreign key (id_endereco_busca) references busca(id_busca);
+alter table OS add foreign key (id_endereco_entrega) references entrega(id_entrega);
+alter table OS add foreign key (id_tipo_prod) references tipo_produto(id_tipo_produto);
+alter table OS add foreign key (id_atendente) references funcionario(id_funcionario);
+alter table OS add foreign key (id_marca) references marca(id_marca);
+alter table OS add foreign key (id_modelo) references modelo(id_modelo);
+alter table OS add foreign key (id_status) references Status_(id_status);
+alter table OS add foreign key (id_tecnico) references funcionario(id_funcionario);
+alter table OS add foreign key (id_filial) references filial(id_filial);
+alter table OS add foreign key (id_forma_pgto) references forma_pgto(id_forma_pgto);
+alter table OS add foreign key (id_plano_pgto) references plano_pgto(id_plano_pgto);
 

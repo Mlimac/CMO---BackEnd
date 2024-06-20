@@ -189,7 +189,7 @@ app.post("/servicos", (req, res)=>{
    console.log("titulo: " + tit);
 
    conexao.query(
-   `call SP_Ins_servico(?, ?, ?, ?, ?, ?, @id, @msg);`, [tit, desc, img, ativo, url, ordem], (erro, linhas) => {
+   `exec SP_Ins_servico(?, ?, ?, ?, ?, ?, @id, @msg);`, [tit, desc, img, ativo, url, ordem], (erro, linhas) => {
     var campos = {tit, desc, url};
     if(erro) {
 
@@ -214,7 +214,7 @@ app.post("/marcas", (req, res)=>{
    let flag = req.body.flag;
    
    conexao.query(
-   `call SP_Ins_Marca(?, ?, ?, ?, @msg);`, [desc, url, logo, flag], (erro, linhas) => {
+   `exec SP_Ins_Marca(?, ?, ?, ?, @msg);`, [desc, url, logo, flag], (erro, linhas) => {
     //var campos = {tit, desc, url};
     if(erro) {
 
@@ -245,7 +245,7 @@ app.post("/filiais", (req, res)=>{
 
    
    conexao.query(
-   `call SP_Ins_Filiais(?, ?, ?, ?, ?, ?, ?, ?, @msg);`, [nome, endereco, bairro, cidade, estado, fone, celular, cnpj], (erro, linhas) => {
+   `exec SP_Ins_Filiais(?, ?, ?, ?, ?, ?, ?, ?, @msg);`, [nome, endereco, bairro, cidade, estado, fone, celular, cnpj], (erro, linhas) => {
     //var campos = {tit, desc, url};
     if(erro) {
       console.log(erro);
@@ -260,6 +260,38 @@ app.post("/filiais", (req, res)=>{
 
    });
 });
+
+
+app.post("/chamados", (req, res) => {
+  const cliente = req.body.cliente;
+  const fone = req.body.fone;
+  const email = req.body.email;
+  const tipoProd = req.body.tipoProd;
+  const produto = req.body.produto;
+  const marca = req.body.marca;
+  const problema = req.body.problema;
+  const tipoCham = req.body.tipoCham;
+
+  conexao.query(
+  'exec SP_Ins_Chamado (?,?,?,?,?,?,?,?)',
+  [cliente, fone, email, tipoProd, produto, marca, problema, tipoCham], (erro, linhas) =>{
+    //var campos = {tit, desc, url};
+    if(erro) {
+      console.log(erro);
+      res.send('Problema ao inserir\n');
+    }
+
+    else{
+      console.log(linhas);
+      res.send("Chamado inserido!\n");
+    }
+
+
+   });
+
+
+});
+
 
 //======================================================== MÉTODO POST FIM ==================================================
 
@@ -302,7 +334,7 @@ app.put("/marcas", (req, res) => {
     let principal = req.body.principal;
 
     conexao.query(
-        `call SP_Up_Marcas(?, ?, @msg);`, 
+        `exec SP_Up_Marcas(?, ?, @msg);`, 
         [desc_marca, principal], 
         (erro, linhas) => {
             if (erro) {
@@ -328,7 +360,7 @@ app.put("/filiais", (req, res) => {
     let cnpj = req.body.cnpj;
 
     conexao.query(
-        `call SP_Up_Filiais(?, ?, ?, ?, ?, ?, ?, ?, @msg);`, 
+        `exec SP_Up_Filiais(?, ?, ?, ?, ?, ?, ?, ?, @msg);`, 
         [nome, endereco, bairro, cidade, estado, fone, celular, cnpj], 
         (erro, linhas) => {
             if (erro) {
@@ -367,6 +399,8 @@ app.delete("/servicos/:id", (req, res) => {
  
     })
 });
+
+//=========================================================== MÉTODO DELETE FIM ================================================ 
 
 
 //Servidor criado com JS puro
