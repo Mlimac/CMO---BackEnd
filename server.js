@@ -8,15 +8,15 @@ const SEGREDO = 'REMOTA';
 
 const app = express();
 const porta = 5000;
-/*const conexao = mysql.createConnection({
+/* const conexao = mysql.createConnection({
   host: "localhost",
-  user: "root",
+  user: "eder",
   port: 3306,
   database: "CMO",
-  password: ""
-});
+  password: "123456"
+}); 
 
-conexao.connect();*/
+conexao.connect(); */
 
 const dbConfig = {
   server : "52.5.245.24",
@@ -119,13 +119,12 @@ app.get("/marcas", (req, res) => {
 });
  
 //Get Site
-app.get("/servicos", (req, res)=>{
-
-  conexao.query("select titulo_servico, desc_servico, img_servico, ordem_apresentacao, url_servico from servico where ativo = 1 ORDER BY ORDEM_APRESENTACAO")
-  .then(result => res.json(result.recordset))
-  .catch(err => res.json(err));
-
+app.get("/servicos", (req, res) => {
+  conexao.query("select * from servico ORDER BY ordem_apresentacao")
+    .then(result => res.json(result.recordset))
+    .catch(err => res.json(err));
 });
+
 
 //Get ADM
 app.get("/admServicos", (req, res)=>{
@@ -189,7 +188,7 @@ app.post("/servicos", (req, res)=>{
    console.log("titulo: " + tit);
 
    conexao.query(
-   `exec SP_Ins_servico(?, ?, ?, ?, ?, ?, @id, @msg);`, [tit, desc, img, ativo, url, ordem], (erro, linhas) => {
+   `call SP_Ins_servico(?, ?, ?, ?, ?, ?, @id, @msg);`, [tit, desc, img, ativo, url, ordem], (erro, linhas) => {
     var campos = {tit, desc, url};
     if(erro) {
 
@@ -214,7 +213,7 @@ app.post("/marcas", (req, res)=>{
    let flag = req.body.flag;
    
    conexao.query(
-   `exec SP_Ins_Marca(?, ?, ?, ?, @msg);`, [desc, url, logo, flag], (erro, linhas) => {
+   `call SP_Ins_Marca(?, ?, ?, ?, @msg);`, [desc, url, logo, flag], (erro, linhas) => {
     //var campos = {tit, desc, url};
     if(erro) {
 
@@ -245,7 +244,7 @@ app.post("/filiais", (req, res)=>{
 
    
    conexao.query(
-   `exec SP_Ins_Filiais(?, ?, ?, ?, ?, ?, ?, ?, @msg);`, [nome, endereco, bairro, cidade, estado, fone, celular, cnpj], (erro, linhas) => {
+   `call SP_Ins_Filiais(?, ?, ?, ?, ?, ?, ?, ?, @msg);`, [nome, endereco, bairro, cidade, estado, fone, celular, cnpj], (erro, linhas) => {
     //var campos = {tit, desc, url};
     if(erro) {
       console.log(erro);
@@ -273,7 +272,7 @@ app.post("/chamados", (req, res) => {
   const tipoCham = req.body.tipoCham;
 
   conexao.query(
-  'exec SP_Ins_Chamado (?,?,?,?,?,?,?,?)',
+  'call SP_Ins_Chamado (?,?,?,?,?,?,?,?)',
   [cliente, fone, email, tipoProd, produto, marca, problema, tipoCham], (erro, linhas) =>{
     //var campos = {tit, desc, url};
     if(erro) {
@@ -311,7 +310,7 @@ app.put("/servicos", (req, res) => {
     let url = req.body.url;
     let oper = req.body.oper;
 
-    conexao.query(`exec SP_UPd_Servico
+    conexao.query(`call SP_UPd_Servico
       ${tit}, ${desc}, ${url}, 
       ${img}, ${ordem}, ${ativo}`, (erro, resultado) =>{
    
@@ -334,7 +333,7 @@ app.put("/marcas", (req, res) => {
     let principal = req.body.principal;
 
     conexao.query(
-        `exec SP_Up_Marcas(?, ?, @msg);`, 
+        `call SP_Up_Marcas(?, ?, @msg);`, 
         [desc_marca, principal], 
         (erro, linhas) => {
             if (erro) {
@@ -360,7 +359,7 @@ app.put("/filiais", (req, res) => {
     let cnpj = req.body.cnpj;
 
     conexao.query(
-        `exec SP_Up_Filiais(?, ?, ?, ?, ?, ?, ?, ?, @msg);`, 
+        `call SP_Up_Filiais(?, ?, ?, ?, ?, ?, ?, ?, @msg);`, 
         [nome, endereco, bairro, cidade, estado, fone, celular, cnpj], 
         (erro, linhas) => {
             if (erro) {
@@ -384,7 +383,7 @@ app.delete("/servicos/:id", (req, res) => {
   let id = req.params.id;
 
 
-  conexao.query(`exec SP_Del_Servico
+  conexao.query(`call SP_Del_Servico
     ${id}`, (erro, resultado) =>{
  
          if(erro){
