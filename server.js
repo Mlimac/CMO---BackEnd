@@ -10,7 +10,7 @@ const app = express();
 const porta = 5000;
 /* const conexao = mysql.createConnection({
   host: "localhost",
-  user: "eder",
+  user: "root",
   port: 3306,
   database: "CMO",
   password: "123456"
@@ -98,7 +98,7 @@ app.post("/login", (req, res) => {
 app.get("/marcas", (req, res) => {
    
 
-  conexao.query("select nome, endereco, bairro, cidade, estado, fone, celular, cnpj from marca")
+  conexao.query("select id_marca, desc_marca, logo_marca, url_marca, ativo from Marca")
   .then(result => res.json(result.recordset))
   .catch(err => res.json(err));
 
@@ -110,11 +110,11 @@ app.get("/marcas", (req, res) => {
 });
  
 //Get Site
-app.get("/servicos", (req, res) => {
+/* app.get("/servicos", (req, res) => {
   conexao.query("select * from servico ORDER BY ordem_apresentacao")
     .then(result => res.json(result.recordset))
     .catch(err => res.json(err));
-});
+}); */
 
 
 //Get ADM
@@ -135,7 +135,7 @@ app.get('/servicos:id', (req, res) =>{
                         url_servico,
                         ordem_apresentacao,
                         ativo
-                        FROM servico WHERE id_servico = 1 ${id_servico}`)
+                        FROM servico WHERE id_servico = ${id_servico}`)
                         .then(result => res.json(result.recordset))
                         .catch(err => res.json(err));
 });
@@ -222,8 +222,8 @@ app.post("/marcas", (req, res)=>{
    let url = req.body.url;
    let logo = req.body.logo;
    
-   console.log("desc: " + desc + "\nurl: " + url + "\nlogo: " + logo)
-   /*conexao.query(`exec SP_Ins_Marca
+   //console.log("desc: " + desc + "\nurl: " + url + "\nlogo: " + logo)
+   conexao.query(`exec SP_Ins_Marca
       ${desc}, ${logo}, ${url}`, (erro, resultado) =>{
    
            if(erro){
@@ -232,11 +232,11 @@ app.post("/marcas", (req, res)=>{
            }
            else{
              console.log(resultado);
-             res.status(200).send("Marca inserido com sucesso");
+             res.status(200).send("Marca inserida com sucesso");
    
            }
    
-      })*/
+      })
         
   
 });
@@ -245,29 +245,25 @@ app.post("/filiais", (req, res)=>{
    let nome = req.body.nome;
    let endereco = req.body.endereco;
    let bairro = req.body.bairro;
-   let cidade = req.body.cidade;
-   let fone = req.body.fone;
-   let celular = req.body.celular;
-   let estado = req.body.estado;
-   let cnpj = req.body.cnpj;
+   let url = req.body.url;
+   let ativo = req.body.ativo;
 
+   conexao.query(`exec SP_Ins_Filial 0,
+    ${nome}, ${bairro}, ${endereco}, ${url}, ${ativo}`, (erro, resultado) =>{
+ 
+         if(erro){
+           console.log(erro);
+           res.status(500).send('Problema ao inserir filial');
+         }
+         else{
+           console.log(resultado);
+           res.status(200).send("Filial inserida com sucesso");
+ 
+         }
+ 
+    })
 
    
-   conexao.query(
-   `call SP_Ins_Filiais(?, ?, ?, ?, ?, ?, ?, ?, @msg);`, [nome, endereco, bairro, cidade, estado, fone, celular, cnpj], (erro, linhas) => {
-    //var campos = {tit, desc, url};
-    if(erro) {
-      console.log(erro);
-      res.send('Problema ao inserir\n');
-    }
-     
-    else{
-      console.log(linhas);
-      res.send("Filial inserida!\n");
-    }
-
-
-   });
 });
 
 
@@ -281,25 +277,44 @@ app.post("/chamados", (req, res) => {
   const problema = req.body.problema;
   const tipoCham = req.body.tipoCham;
 
-  conexao.query(
-  'call SP_Ins_Chamado (?,?,?,?,?,?,?,?)',
-  [cliente, fone, email, tipoProd, produto, marca, problema, tipoCham], (erro, linhas) =>{
-    //var campos = {tit, desc, url};
-    if(erro) {
-      console.log(erro);
-      res.send('Problema ao inserir\n');
-    }
-
-    else{
-      console.log(linhas);
-      res.send("Chamado inserido!\n");
-    }
-
-
-   });
+  conexao.query(`exec SP_Ins_Chamado
+    ${cliente}, ${fone}, ${email}, ${tipoProd}, ${produto},  ${marca},  ${problema},  ${tipoCham}`, (erro, resultado) =>{
+ 
+         if(erro){
+           console.log(erro);
+           res.status(500).send('Problema ao inserir chamado');
+         }
+         else{
+           console.log(resultado);
+           res.status(200).send("Chamado inserida com sucesso");
+ 
+         }
+ 
+    })
 
 
 });
+
+app.post("/tipo_produto", (req, res) => {
+  const desc_tipo = req.body.desc_tipo;
+  conexao.query(`exec SP_Ins_TipoProduto
+    ${desc_tipo}`, (erro, resultado) =>{
+ 
+         if(erro){
+           console.log(erro);
+           res.status(500).send('Problema ao inserir tipo de produto');
+         }
+         else{
+           console.log(resultado);
+           res.status(200).send("Tipo de produto inserido com sucesso");
+ 
+         }
+ 
+    })
+
+
+});
+
 
 
 //======================================================== MÉTODO POST FIM ==================================================
@@ -311,76 +326,99 @@ app.post("/chamados", (req, res) => {
 
 //=========================================================== MÉTODO PUT ====================================================
 // Endpoint para atualizar serviços
-app.put("/servicos", (req, res) => {
-    let id = req.body.id;
-    let tit = req.body.titulo;
-    let desc = req.body.desc;
-    let img = req.body.img;
-    let ativo = req.body.ativo;
-    let url = req.body.url;
-    let oper = req.body.oper;
+app.put("/servicos:id", (req, res) => {
+  let id = req.params.id;
 
-    conexao.query(`call SP_UPd_Servico
-      ${tit}, ${desc}, ${url}, 
-      ${img}, ${ordem}, ${ativo}`, (erro, resultado) =>{
+  let titulo = req.body.titulo;
+  let desc_servico = req.body.desc_servico;
+  let img_servico = req.body.img_servico;
+  let url_servico = req.body.url_servico;
+  let ordem = req.body.ordem;
+  let ativo = req.body.ativo;
+
+  conexao.query(`exec SP_Upd_Servico 
+      ${id}, ${titulo}, ${desc_servico}, ${img_servico}, ${url_servico}, ${ordem}, ${ativo}`, (erro, resultado) => {
+      if (erro) {
+          console.log(erro);
+          res.status(500).send('Problema ao atualizar serviço');
+      } else {
+          console.log(resultado);
+          res.status(200).send("Serviço atualizado com sucesso");
+      }
+  });
+});
+
+
+// Endpoint para atualizar marcas
+app.put("/marcas:id", (req, res) => {
+    let id = req.params.id;
+
+    let desc_marca = req.body.desc_marca;
+    let url_marca = req.body.url_marca;
+    let ativo = req.body.ativo;
+
+    conexao.query(`exec SP_UPd_Marca
+      ${id}, ${desc_marca}, ${url_marca}, ${ativo}`, (erro, resultado) =>{
    
            if(erro){
              console.log(erro);
-             res.status(500).send('Problema ao inserir serviço');
+             res.status(500).send('Problema ao atualizar marca');
            }
            else{
              console.log(resultado);
-             res.status(200).send("Serviço inserido com sucesso");
+             res.status(200).send("Marca atualizada com sucesso");
    
            }
    
       })
-});
 
-// Endpoint para atualizar marcas
-app.put("/marcas", (req, res) => {
-    let desc_marca = req.body.desc_marca;
-    let principal = req.body.principal;
-
-    conexao.query(
-        `call SP_Up_Marcas(?, ?, @msg);`, 
-        [desc_marca, principal], 
-        (erro, linhas) => {
-            if (erro) {
-                console.log(erro);
-                res.send('Problema ao atualizar\n');
-            } else {
-                console.log(linhas);
-                res.send("Marca atualizada com sucesso!\n");
-            }
-        }
-    );
+   
 });
 
 // Endpoint para atualizar filiais
-app.put("/filiais", (req, res) => {
-    let nome = req.body.nome;
-    let endereco = req.body.endereco;
-    let bairro = req.body.bairro;
-    let cidade = req.body.cidade;
-    let estado = req.body.estado;
-    let fone = req.body.fone;
-    let celular = req.body.celular;
-    let cnpj = req.body.cnpj;
+app.put("/filiais:id", (req, res) => {
+  let id = req.params.id;
 
-    conexao.query(
-        `call SP_Up_Filiais(?, ?, ?, ?, ?, ?, ?, ?, @msg);`, 
-        [nome, endereco, bairro, cidade, estado, fone, celular, cnpj], 
-        (erro, linhas) => {
-            if (erro) {
-                console.log(erro);
-                res.send('Problema ao atualizar\n');
-            } else {
-                console.log(linhas);
-                res.send("Filial atualizada com sucesso!\n");
-            }
-        }
-    );
+  let nome = req.body.nome;
+  let bairro = req.body.bairro;
+  let endereco = req.body.endereco;
+  let url = req.body.url;
+  let ativo = req.body.ativo;
+
+  conexao.query(`exec SP_Upd_Filial 
+      ${id}, ${nome}, ${bairro}, ${endereco}, ${url}, ${ativo}`, (erro, resultado) => {
+      if (erro) {
+          console.log(erro);
+          res.status(500).send('Problema ao atualizar filial');
+      } else {
+          console.log(resultado);
+          res.status(200).send("Filial atualizada com sucesso");
+      }
+  });
+});
+
+
+
+app.put("/tipo_produto:id", (req, res) => {
+  let id = req.params.id;
+
+  let desc_tipo = req.body.desc_tipo;
+  let ativo = req.body.ativo;
+
+  conexao.query(`exec SP_UPd_Servico
+    ${id}, ${desc_tipo}, ${ativo}`, (erro, resultado) =>{
+ 
+         if(erro){
+           console.log(erro);
+           res.status(500).send('Problema ao atualizar tipo de produto');
+         }
+         else{
+           console.log(resultado);
+           res.status(200).send("tipo produto atualizado com sucesso");
+ 
+         }
+ 
+    })
 });
 
 
@@ -393,7 +431,7 @@ app.delete("/servicos/:id", (req, res) => {
   let id = req.params.id;
 
 
-  conexao.query(`call SP_Del_Servico
+  conexao.query(`exec SP_Del_Servico
     ${id}`, (erro, resultado) =>{
  
          if(erro){
@@ -403,6 +441,66 @@ app.delete("/servicos/:id", (req, res) => {
          else{
            console.log(resultado);
            res.status(200).send("Serviço excluido com sucesso");
+ 
+         }
+ 
+    })
+});
+
+app.delete("/filial/:id", (req, res) => {
+  let id = req.params.id;
+
+
+  conexao.query(`exec SP_Del_Filial
+    ${id}`, (erro, resultado) =>{
+ 
+         if(erro){
+           console.log(erro);
+           res.status(500).send('Problema ao excluir filial');
+         }
+         else{
+           console.log(resultado);
+           res.status(200).send("Filial excluida com sucesso");
+ 
+         }
+ 
+    })
+});
+
+app.delete("/tipo_produto/:id", (req, res) => {
+  let id = req.params.id;
+
+
+  conexao.query(`exec SP_Del_TipoProduto
+    ${id}, ${ativo}`, (erro, resultado) =>{
+ 
+         if(erro){
+           console.log(erro);
+           res.status(500).send('Problema ao excluir tipo de produto');
+         }
+         else{
+           console.log(resultado);
+           res.status(200).send("Tipo de produto excluido com sucesso");
+ 
+         }
+ 
+    })
+});
+
+app.delete("/marca/:id", (req, res) => {
+  let id = req.params.id;
+
+
+  conexao.query(`exec SP_Del_Marca
+    ${id}`, (erro, resultado) =>{
+ 
+         if(erro){
+           console.log(erro);
+           res.status(500).send('Problema ao excluir marca');
+         }
+         else{
+           console.log(resultado);
+           res.status(200).send("Marca excluida com sucesso");
  
          }
  
