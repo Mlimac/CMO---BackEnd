@@ -96,20 +96,11 @@ app.post("/login", (req, res) => {
 
 
 app.get("/marcas", (req, res) => {
-    var html = `<html>
-    <head>
-    <title>CMO</title>
-    </head>
-    </body>
-    <h1>Bem vindo ao CMO<h1>
-    </body>
-    </html>`
+   
 
-
-  conexao.query("select nome, endereco, bairro, cidade, estado, fone, celular, cnpj from marca", (err, result) => {
-        if (err) throw err;
-        res.status(200).json(result);
-  });
+  conexao.query("select nome, endereco, bairro, cidade, estado, fone, celular, cnpj from marca")
+  .then(result => res.json(result.recordset))
+  .catch(err => res.json(err));
 
   //res.status(200).send(html);
   //Fazer uma SQL no banco de dados
@@ -152,16 +143,36 @@ app.get('/servicos:id', (req, res) =>{
 
 app.get("/filiais",  (req, res)=>{
 
-  conexao.query("select nome, endereco, bairro, cidade, estado, fone, celular, cnpj from filial", (err, result) => {
-      if (err) throw err;
-      console.log(result);
-      res.status(200).json(result);
-      return result;
-  });
+  conexao.query("select nome, endereco, bairro, cidade, estado, fone, celular, cnpj from filial")
+  .then(result => res.json(result.recordset))
+  .catch(err => res.json(err));
+
+});
+
+app.get("/chamados",  (req, res)=>{
+
+  conexao.query("SELECT [id_chamado], [desc_produto] ,[id_cliente] ,[id_tipo] ,[id_marca] ,[nr_serie] ,[capacidade] ,[problema] ,[solucao] ,[dt_chamado] ,[dt_resposta] FROM Chamado")
+  .then(result => res.json(result.recordset))
+  .catch(err => res.json(err));
+
+});
+
+app.get("/clientes",  (req, res)=>{
+
+  conexao.query("SELECT [id_cliente] ,[nome_cliente] ,[fone_cliente] ,[email_cliente] ,[data_cadastro] FROM Cliente")
+  .then(result => res.json(result.recordset))
+  .catch(err => res.json(err));
 
 });
 
 
+app.get("/contato",  (req, res)=>{
+
+  conexao.query("SELECT [id_cliente] ,[assunto] ,[mensagem] ,[dt_contato] ,[resposta] ,[dt_resposta] FROM Contato")
+  .then(result => res.json(result.recordset))
+  .catch(err => res.json(err));
+
+});
 
 //======================================================= MÉTODO GET FIM =================================================
 
@@ -210,25 +221,24 @@ app.post("/marcas", (req, res)=>{
    let desc = req.body.desc;
    let url = req.body.url;
    let logo = req.body.logo;
-   let flag = req.body.flag;
    
-   conexao.query(
-   `call SP_Ins_Marca(?, ?, ?, ?, @msg);`, [desc, url, logo, flag], (erro, linhas) => {
-    //var campos = {tit, desc, url};
-    if(erro) {
-
-
-      console.log(erro);
-      res.send('Problema ao inserir');
-    }
-     
-    else{
-      console.log(linhas);
-      res.send("Marca inserida!");
-    }
-
-
-   });
+   console.log("desc: " + desc + "\nurl: " + url + "\nlogo: " + logo)
+   /*conexao.query(`exec SP_Ins_Marca
+      ${desc}, ${logo}, ${url}`, (erro, resultado) =>{
+   
+           if(erro){
+             console.log(erro);
+             res.status(500).send('Problema ao inserir marca');
+           }
+           else{
+             console.log(resultado);
+             res.status(200).send("Marca inserido com sucesso");
+   
+           }
+   
+      })*/
+        
+  
 });
 
 app.post("/filiais", (req, res)=>{
