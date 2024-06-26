@@ -110,11 +110,11 @@ app.get("/marcas", (req, res) => {
 });
  
 //Get Site
-/* app.get("/servicos", (req, res) => {
+app.get("/servicos", (req, res) => {
   conexao.query("select * from servico ORDER BY ordem_apresentacao")
     .then(result => res.json(result.recordset))
     .catch(err => res.json(err));
-}); */
+});
 
 
 //Get ADM
