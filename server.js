@@ -76,11 +76,11 @@ app.post("/login", (req, res) => {
   let sen = req.body.senha;
 
 //conectar ao bd pra buscar o id desse usuario
-  if((usu = "marcos") && (sen = "123")){
+  if((usu == "marcos@email.com") && (sen == "123")){
     const id = 1; //isso vem do BD
 
     //token tem 3 partes = 1) identifica o usuario 2 )segredo 3) opçoes
-    const token = jwt.sign({id}, SEGREDO, { expiresIn: 300 }) //5 min
+    const token = jwt.sign({id}, SEGREDO, { expiresIn: 600 }) //10 min
    
     console.log("usuario marcos logou no sistema");
     res.status(200).json({autenticado : true, token: token});
@@ -88,11 +88,15 @@ app.post("/login", (req, res) => {
   }
   else{
     res.status(501).send("usuario invalido ou inexistente");
-  }
+  }   
 
 });
 
 //======================================================== MÉTODO GET ====================================================
+
+app.get("/verificarLogin", verificarToken, (req, res) => { res.status(200).json({st : "ok"});});
+
+
 
 
 app.get("/marcas", (req, res) => {
