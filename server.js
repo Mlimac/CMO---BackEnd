@@ -75,7 +75,6 @@ app.post("/login", (req, res) => {
   let usu = req.body.usuario;
   let sen = req.body.senha;
 
-//conectar ao bd pra buscar o id desse usuario
   if((usu == "marcos@email.com") && (sen == "123")){
     const id = 1; //isso vem do BD
 
@@ -116,7 +115,7 @@ app.get("/marcas", (req, res) => {
 //Get Site
 app.get("/servicos", (req, res) => {
   conexao.query("select * from servico ORDER BY ordem_apresentacao")
-    .then(result => res.json(result.recordset))
+    .then(result => {res.json(result.recordset); console.log(result.recordset);})
     .catch(err => res.json(err));
 });
 
@@ -153,6 +152,14 @@ app.get("/filiais",  (req, res)=>{
 
 });
 
+app.get("/filiais:id",  (req, res)=>{
+
+  conexao.query(`select nome, endereco, bairro, cidade, estado, fone, celular, cnpj from filial where id_filial=${id_filial}`)
+  .then(result => res.json(result.recordset))
+  .catch(err => res.json(err));
+
+});
+
 app.get("/chamados",  (req, res)=>{
 
   conexao.query("SELECT [id_chamado], [desc_produto] ,[id_cliente] ,[id_tipo] ,[id_marca] ,[nr_serie] ,[capacidade] ,[problema] ,[solucao] ,[dt_chamado] ,[dt_resposta] FROM Chamado")
@@ -160,6 +167,16 @@ app.get("/chamados",  (req, res)=>{
   .catch(err => res.json(err));
 
 });
+
+app.get("/chamados:id",  (req, res)=>{
+
+  conexao.query(`SELECT [id_chamado], [desc_produto] ,[id_cliente] ,[id_tipo] ,[id_marca] ,[nr_serie] ,[capacidade] ,[problema] ,[solucao] ,[dt_chamado] ,[dt_resposta] FROM Chamado where id_chamado = ${id}`)
+  .then(result => res.json(result.recordset))
+  .catch(err => res.json(err));
+
+});
+
+
 
 app.get("/clientes",  (req, res)=>{
 
@@ -169,10 +186,26 @@ app.get("/clientes",  (req, res)=>{
 
 });
 
+app.get("/clientes:id",  (req, res)=>{
+
+  conexao.query(`SELECT [id_cliente] ,[nome_cliente] ,[fone_cliente] ,[email_cliente] ,[data_cadastro] FROM Cliente where id_cliente = ${id}`)
+  .then(result => res.json(result.recordset))
+  .catch(err => res.json(err));
+
+});
+
 
 app.get("/contato",  (req, res)=>{
 
   conexao.query("SELECT [id_cliente] ,[assunto] ,[mensagem] ,[dt_contato] ,[resposta] ,[dt_resposta] FROM Contato")
+  .then(result => res.json(result.recordset))
+  .catch(err => res.json(err));
+
+});
+
+app.get("/contato:id",  (req, res)=>{
+
+  conexao.query(`SELECT [id_cliente] ,[assunto] ,[mensagem] ,[dt_contato] ,[resposta] ,[dt_resposta] FROM Contato where id_contato = ${id}`)
   .then(result => res.json(result.recordset))
   .catch(err => res.json(err));
 
@@ -196,8 +229,8 @@ app.post("/servicos", (req, res)=>{
    let tit = req.body.titulo;
    let desc = req.body.desc;
    let url = req.body.url;
+   let ativo = req.body.ativo;
    let img = req.body.img;
-   let oper = req.body.oper;
    let ordem = req.body.ordem;
    
    console.log("titulo: " + tit);
