@@ -79,7 +79,7 @@ app.post("/login", (req, res) => {
     const id = 1; //isso vem do BD
 
     //token tem 3 partes = 1) identifica o usuario 2 )segredo 3) opçoes
-    const token = jwt.sign({id}, SEGREDO, { expiresIn: 600 }) //10 min
+    const token = jwt.sign({id}, SEGREDO, { expiresIn: 86400  }) //24 horas
    
     console.log("usuario marcos logou no sistema");
     res.status(200).json({autenticado : true, token: token});
@@ -148,7 +148,7 @@ app.get('/servicos:id', (req, res) =>{
 
 app.get("/filiais",  (req, res)=>{
 
-  conexao.query("select nome, endereco, bairro, cidade, estado, fone, celular, cnpj from filial")
+  conexao.query("select id_filial, nome_filial, endereco, bairro from Filial")
   .then(result => res.json(result.recordset))
   .catch(err => res.json(err));
 
@@ -156,7 +156,8 @@ app.get("/filiais",  (req, res)=>{
 
 app.get("/filiais:id",  (req, res)=>{
 
-  conexao.query(`select nome, endereco, bairro, cidade, estado, fone, celular, cnpj from filial where id_filial=${id_filial}`)
+  let id_filial = req.params.id;
+  conexao.query(`select id_filial, nome_filial, endereco, bairro, url_mapa from filial where id_filial=${id_filial}`)
   .then(result => res.json(result.recordset))
   .catch(err => res.json(err));
 
@@ -172,6 +173,7 @@ app.get("/chamados",  (req, res)=>{
 
 app.get("/chamados:id",  (req, res)=>{
 
+  let id = req.params.id;
   conexao.query(`SELECT [id_chamado], [desc_produto] ,[id_cliente] ,[id_tipo] ,[id_marca] ,[nr_serie] ,[capacidade] ,[problema] ,[solucao] ,[dt_chamado] ,[dt_resposta] FROM Chamado where id_chamado = ${id}`)
   .then(result => res.json(result.recordset))
   .catch(err => res.json(err));
@@ -190,6 +192,7 @@ app.get("/clientes",  (req, res)=>{
 
 app.get("/clientes:id",  (req, res)=>{
 
+  let id = req.params.id;
   conexao.query(`SELECT [id_cliente] ,[nome_cliente] ,[fone_cliente] ,[email_cliente] ,[data_cadastro] FROM Cliente where id_cliente = ${id}`)
   .then(result => res.json(result.recordset))
   .catch(err => res.json(err));
@@ -207,6 +210,7 @@ app.get("/contato",  (req, res)=>{
 
 app.get("/contato:id",  (req, res)=>{
 
+  let id = req.params.id;
   conexao.query(`SELECT [id_cliente] ,[assunto] ,[mensagem] ,[dt_contato] ,[resposta] ,[dt_resposta] FROM Contato where id_contato = ${id}`)
   .then(result => res.json(result.recordset))
   .catch(err => res.json(err));
@@ -278,18 +282,20 @@ app.post("/marcas", (req, res)=>{
 });
 
 app.post("/filiais", (req, res)=>{
+   
+   let id = req.body.id;
    let nome = req.body.nome;
    let endereco = req.body.endereco;
    let bairro = req.body.bairro;
    let url = req.body.url;
    let ativo = req.body.ativo;
-
-   conexao.query(`exec SP_Ins_Filial 0,
+console.log("id: " + id)
+   conexao.query(`exec SP_Ins_Filial ${id},
     '${nome}', '${bairro}', '${endereco}', '${url}', ${ativo}`, (erro, resultado) =>{
  
          if(erro){
            console.log(erro);
-           res.status(500).send('Problema ao inserir filial');
+           res.status(500).send(erro.message);
          }
          else{
            console.log(resultado);
@@ -322,7 +328,7 @@ app.post("/chamados", (req, res) => {
          }
          else{
            console.log(resultado);
-           res.status(200).send("Chamado inserida com sucesso");
+           res.status(200).send("Chamado inserido com sucesso");
  
          }
  
